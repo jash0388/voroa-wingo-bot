@@ -76,7 +76,7 @@ class RaxiPlatformAdapter:
         self.base_url = "https://api.raxiqaz.com"
         self.auth_token = auth_token.strip()
         self.game_mode = game_mode
-        self.type_id = 1 if game_mode == "30S" else 2
+        self.type_id = 30 if game_mode == "30S" else 1
         self.session = requests.Session()
         self.session.headers.update({
             "Authorization": f"Bearer {self.auth_token}",
@@ -117,7 +117,7 @@ class RaxiPlatformAdapter:
     def get_history(self, limit=20):
         try:
             payload = sign_payload({"typeId": self.type_id, "pageSize": limit, "pageNo": 1})
-            resp = self.session.post(f"{self.base_url}/api/webapi/GetWinTheLotteryResult", json=payload, timeout=6)
+            resp = self.session.post(f"{self.base_url}/api/webapi/GetNoaverageEmerdList", json=payload, timeout=6)
             data = resp.json()
             records = []
             if data.get("code") == 0:
@@ -146,15 +146,15 @@ class RaxiPlatformAdapter:
 
     def place_order(self, period, select_size, amount):
         try:
-            # selectType: "big" or "small"
-            sel = "big" if select_size.upper() == "BIG" else "small"
+            # Official Raxi1 WinGo parameter: 13 for BIG, 14 for SMALL
+            sel_code = 13 if select_size.upper() == "BIG" else 14
             payload = sign_payload({
                 "typeId": self.type_id,
                 "issuenumber": str(period),
                 "amount": int(amount),
                 "betCount": 1,
                 "gameType": 2,
-                "selectType": sel
+                "selectType": sel_code
             })
             resp = self.session.post(f"{self.base_url}/api/webapi/GameBetting", json=payload, timeout=8)
             data = resp.json()
