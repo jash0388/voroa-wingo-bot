@@ -2,7 +2,7 @@ import asyncio
 import time
 import random
 import logging
-from adapter import SimulatorAdapter, LivePlatformAdapter
+from adapter import SimulatorAdapter, RaxiPlatformAdapter
 from engine import analyze_history
 
 logger = logging.getLogger("bot")
@@ -54,8 +54,8 @@ class WinGoAutoBot:
         self.stats["consecutive_losses"] = 0
         self.is_first_bet = True
         
-        if mode == "LIVE" and base_url and auth_token:
-            self.adapter = LivePlatformAdapter(base_url, auth_token, game_mode=game_mode)
+        if auth_token:
+            self.adapter = RaxiPlatformAdapter(auth_token=auth_token, game_mode=game_mode)
         else:
             self.adapter = SimulatorAdapter(game_mode=game_mode, initial_balance=initial_bal)
             
