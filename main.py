@@ -61,6 +61,11 @@ async def stop_bot():
     bot_instance.stop("User clicked stop")
     return {"success": True, "message": "Bot stopped."}
 
+@app.get("/raxi_autobet.user.js", response_class=PlainTextResponse)
+async def serve_raxi_script():
+    with open("raxi_autobet.user.js", "r", encoding="utf-8") as f:
+        return f.read()
+
 @app.get("/static_script.js", response_class=PlainTextResponse)
 async def serve_user_script():
     with open("static_script.js", "r", encoding="utf-8") as f:
