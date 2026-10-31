@@ -8,6 +8,40 @@ import logging
 
 logger = logging.getLogger("adapter")
 
+def login_raxi(mobile: str, password: str) -> dict:
+    """
+    Direct login to raxi1.com (api.raxiqaz.com) using mobile and password.
+    Returns auth token and initial balance.
+    """
+    phone = str(mobile).strip()
+    # Format with country code 91 if 10-digit Indian number
+    if len(phone) == 10 and not phone.startswith("91"):
+        phone = "91" + phone
+    
+    payload = sign_payload({
+        "username": phone,
+        "pwd": str(password).strip(),
+        "logintype": "mobile"
+    })
+    
+    try:
+        resp = requests.post("https://api.raxiqaz.com/api/webapi/Login", json=payload, headers={
+            "Content-Type": "application/json",
+            "User-Agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 17_0 like Mac OS X) AppleWebKit/605.1.15"
+        }, timeout=10)
+        data = resp.json()
+        if data.get("code") == 0:
+            token = data.get("data", {}).get("token")
+            if token:
+                logger.info(f"✅ Raxi login successful for {phone}!")
+                return {"success": True, "token": token, "msg": "Login successful"}
+        msg = data.get("msg", "Invalid mobile or password")
+        logger.warning(f"❌ Raxi login rejected: {msg}")
+        return {"success": False, "msg": msg}
+    except Exception as e:
+        logger.error(f"❌ Raxi login error: {e}")
+        return {"success": False, "msg": str(e)}
+
 def sign_payload(data: dict) -> dict:
     """
     Raxi1 / WinGo cryptographic MD5 payload signer.

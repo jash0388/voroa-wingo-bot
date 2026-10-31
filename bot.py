@@ -56,10 +56,17 @@ class WinGoAutoBot:
         
         if auth_token:
             self.adapter = RaxiPlatformAdapter(auth_token=auth_token, game_mode=game_mode)
+            try:
+                real_bal = self.adapter.get_balance()
+                if real_bal > 0:
+                    self.initial_balance = real_bal
+                    self.current_balance = real_bal
+            except Exception as e:
+                logger.error(f"Error fetching initial balance: {e}")
         else:
             self.adapter = SimulatorAdapter(game_mode=game_mode, initial_balance=initial_bal)
             
-        self.add_log(f"Config updated: BaseBet=₹{base_bet}, Target=₹{take_profit or 'NONE'}, Balance=₹{self.current_balance:.2f}, StopLoss=NONE")
+        self.add_log(f"Config updated: Mode={self.mode}, BaseBet=₹{base_bet}, Target=₹{take_profit or 'NONE'}, LiveBalance=₹{self.current_balance:.2f}, StopLoss=NONE")
 
     def set_balance(self, new_bal: float):
         self.current_balance = float(new_bal)
@@ -172,7 +179,14 @@ class WinGoAutoBot:
                         actual_size = "?"
                         draw_num = "?"
                     pnl = bet_amount * 0.96 if won else -bet_amount
-                    self.current_balance += pnl
+                    try:
+                        live_b = self.adapter.get_balance()
+                        if live_b > 0:
+                            self.current_balance = live_b
+                        else:
+                            self.current_balance += pnl
+                    except:
+                        self.current_balance += pnl
 
                 self.stats["net_pnl"] += pnl
 

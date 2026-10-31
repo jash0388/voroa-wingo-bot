@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WinGo Light Auto-Bot Studio | Voroa Cloud</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>WinGo 24/7 Cloud Bot | Voroa Mumbai Server</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
   <style>
@@ -30,19 +30,21 @@
       background: var(--bg);
       color: var(--text-main);
     }
+
     /* TOP NAVIGATION BAR */
     .top-bar {
-      height: 60px;
+      min-height: 60px;
       background: var(--surface);
       border-bottom: 1px solid var(--surface-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 18px;
+      padding: 8px 18px;
       gap: 12px;
       box-shadow: var(--shadow-sm);
       z-index: 100;
       position: relative;
+      flex-wrap: wrap;
     }
     .brand-wrap {
       display: flex;
@@ -66,41 +68,96 @@
       font-weight: 800;
       letter-spacing: -0.2px;
     }
-    .token-box-wrap {
-      flex: 1;
-      max-width: 540px;
+
+    /* DIRECT LOGIN BAR */
+    .login-box-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .input-field {
       display: flex;
       align-items: center;
       background: #f1f5f9;
       border: 1.5px solid #cbd5e1;
-      border-radius: 10px;
-      padding: 4px 6px 4px 12px;
+      border-radius: 9px;
+      padding: 0 10px;
+      height: 36px;
       transition: all 0.2s;
     }
-    .token-box-wrap:focus-within {
+    .input-field:focus-within {
       background: #fff;
       border-color: var(--brand-primary);
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
     }
-    .token-input {
-      flex: 1;
+    .country-prefix {
+      font-size: 12px;
+      font-weight: 800;
+      color: #64748b;
+      margin-right: 6px;
+      border-right: 1px solid #cbd5e1;
+      padding-right: 6px;
+    }
+    .top-input {
       background: transparent;
       border: none;
       outline: none;
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--text-main);
-      font-family: 'JetBrains Mono', monospace;
+      width: 130px;
     }
     .btn-connect {
-      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      background: linear-gradient(135deg, #10b981, #059669);
       color: #fff;
       border: none;
-      padding: 6px 14px;
-      border-radius: 7px;
+      padding: 0 14px;
+      height: 36px;
+      border-radius: 9px;
       font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 3px 10px rgba(16, 185, 129, 0.3);
+      transition: all 0.15s;
+    }
+    .btn-connect:hover { transform: translateY(-1px); }
+    .btn-token-toggle {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #64748b;
+      border-radius: 8px;
+      padding: 0 10px;
+      height: 36px;
+      font-size: 11px;
       font-weight: 700;
       cursor: pointer;
+    }
+
+    .server-status-pill {
+      font-size: 11px;
+      font-weight: 800;
+      color: #16a34a;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #dcfce7;
+      padding: 5px 12px;
+      border-radius: 999px;
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #16a34a;
+      animation: pulse 1.8s infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(1.2); }
     }
 
     /* GAME VIEWPORT */
@@ -117,7 +174,7 @@
       background: #fff;
     }
 
-    /* TOP-RIGHT DOCKED LIGHT HUD (NO DRAGGING, CLEAN -/+ TOGGLE) */
+    /* TOP-RIGHT DOCKED LIGHT HUD */
     #floating-hud {
       position: absolute;
       top: 14px;
@@ -125,6 +182,7 @@
       width: 320px;
       background: rgba(255, 255, 255, 0.98);
       backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
       border: 1px solid rgba(0, 0, 0, 0.1);
       border-radius: 20px;
       box-shadow: var(--shadow-lg);
@@ -305,13 +363,24 @@
       font-size: 10px;
       color: #64748b;
       font-family: 'JetBrains Mono', monospace;
-      max-height: 80px;
+      max-height: 85px;
       overflow-y: auto;
       background: #f8fafc;
       border: 1px solid #e2e8f0;
       border-radius: 8px;
       padding: 6px 8px;
       line-height: 1.4;
+    }
+
+    @media (max-width: 768px) {
+      #floating-hud {
+        width: calc(100vw - 24px);
+        right: 12px;
+        top: 68px;
+      }
+      .top-bar {
+        padding: 8px 12px;
+      }
     }
   </style>
 </head>
@@ -321,18 +390,33 @@
   <div class="top-bar">
     <div class="brand-wrap">
       <div class="brand-icon">⚡</div>
-      <div class="brand-title">WinGo Cloud Bot</div>
+      <div class="brand-title">WinGo 24/7 Cloud Bot</div>
     </div>
 
-    <!-- TOKEN INPUT BOX -->
-    <div class="token-box-wrap">
-      <input type="password" class="token-input" id="auth-token-input" placeholder="Paste your ar_token from raxi1 (F12 ➔ Console ➔ copy(localStorage.getItem('ar_token')))">
-      <button class="btn-connect" onclick="connectAccount()">🔑 Connect Real Account</button>
+    <!-- DIRECT RAXI LOGIN FORM -->
+    <div class="login-box-wrap" id="login-form-wrap">
+      <div class="input-field">
+        <span class="country-prefix">+91</span>
+        <input type="tel" class="top-input" id="raxi-mobile" placeholder="Mobile Number" maxlength="10">
+      </div>
+      <div class="input-field">
+        <input type="password" class="top-input" id="raxi-pwd" placeholder="Raxi Password">
+      </div>
+      <button class="btn-connect" id="btn-login-submit" onclick="loginRaxiAccount()">⚡ Login & Start 24/7 Bot</button>
+      <button class="btn-token-toggle" onclick="toggleTokenInput()" title="Or paste token manually">🔑 Token</button>
     </div>
 
-    <div style="font-size: 11px; font-weight: 700; color: #16a34a; display: flex; align-items: center; gap: 5px;">
-      <span style="display:inline-block; width:7px; height:7px; border-radius:50%; background:#16a34a;"></span>
-      <span>Mumbai Cloud Node</span>
+    <div class="login-box-wrap" id="token-form-wrap" style="display: none;">
+      <div class="input-field" style="width: 250px;">
+        <input type="password" class="top-input" style="width: 100%;" id="auth-token-input" placeholder="Paste ar_token directly">
+      </div>
+      <button class="btn-connect" onclick="connectAccount()">Connect</button>
+      <button class="btn-token-toggle" onclick="toggleTokenInput()">Back</button>
+    </div>
+
+    <div class="server-status-pill">
+      <span class="status-dot"></span>
+      <span id="conn-label">Voroa Mumbai Server</span>
     </div>
   </div>
 
@@ -386,8 +470,8 @@
           🛡️ Stop-Loss: <b>NONE</b> | <b>First Bet Immediate</b> ➔ 4–6m RNG Delay
         </div>
 
-        <button class="btn-action btn-start" id="btn-action" onclick="toggleCloudBot()">▶ START REAL AUTO-BET</button>
-        <div class="log-box" id="log-console">Connecting to Voroa Mumbai Server...</div>
+        <button class="btn-action btn-start" id="btn-action" onclick="toggleCloudBot()">▶ START 24/7 AUTO-BET</button>
+        <div class="log-box" id="log-console">Ready to connect on Voroa Mumbai Server...</div>
       </div>
     </div>
   </div>
@@ -404,13 +488,71 @@
       btn.innerText = isMin ? '+' : '−';
     }
 
+    function toggleTokenInput() {
+      const loginWrap = document.getElementById('login-form-wrap');
+      const tokenWrap = document.getElementById('token-form-wrap');
+      if (loginWrap.style.display === 'none') {
+        loginWrap.style.display = 'flex';
+        tokenWrap.style.display = 'none';
+      } else {
+        loginWrap.style.display = 'none';
+        tokenWrap.style.display = 'flex';
+      }
+    }
+
     let isBotRunning = false;
 
-    // Connect Token to Voroa Server
+    // DIRECT 1-CLICK LOGIN WITH MOBILE & PASSWORD
+    async function loginRaxiAccount() {
+      const mobile = document.getElementById('raxi-mobile').value.trim();
+      const pwd = document.getElementById('raxi-pwd').value.trim();
+      if (!mobile || !pwd) {
+        alert('Please enter your Raxi Mobile Number and Password!');
+        return;
+      }
+      const btn = document.getElementById('btn-login-submit');
+      const oldText = btn.innerText;
+      btn.innerText = '⏳ Connecting...';
+      btn.disabled = true;
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            mobile: mobile,
+            password: pwd,
+            base_bet: parseFloat(document.getElementById('in-base-bet').value) || 10,
+            take_profit: parseFloat(document.getElementById('in-target').value) || 3500,
+            game_mode: '30S'
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          alert(`🎉 CONNECTED REAL ACCOUNT!\n\nLive Wallet Balance: ₹${data.balance.toFixed(2)}\n\n24/7 Cloud Bot is now active on Voroa server! First bet is placing immediately.`);
+          document.getElementById('login-form-wrap').innerHTML = `
+            <div style="font-size: 12px; font-weight: 800; color: #16a34a; background: #dcfce7; padding: 6px 12px; border-radius: 8px;">
+              ✅ Connected: +91 ${mobile.slice(-10)} | Live Bal: ₹${data.balance.toFixed(2)}
+            </div>
+          `;
+          fetchServerStatus();
+        } else {
+          alert('❌ Login Failed: ' + (data.error || 'Check mobile and password'));
+          btn.innerText = oldText;
+          btn.disabled = false;
+        }
+      } catch (e) {
+        alert('Connection error: ' + e);
+        btn.innerText = oldText;
+        btn.disabled = false;
+      }
+    }
+
+    // Connect Token Manually
     async function connectAccount() {
       const token = document.getElementById('auth-token-input').value.trim();
       if (!token) {
-        alert('Please paste your ar_token from raxi1.com! (In raxi1 tab: F12 ➔ Console ➔ type copy(localStorage.getItem("ar_token")))');
+        alert('Please enter your ar_token!');
         return;
       }
       try {
@@ -438,20 +580,6 @@
       if (isBotRunning) {
         await fetch('/api/stop', { method: 'POST' });
       } else {
-        // Save config before start
-        const token = document.getElementById('auth-token-input').value.trim();
-        await fetch('/api/config', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            mode: token ? 'LIVE' : 'SIMULATOR',
-            game_mode: '30S',
-            base_bet: parseFloat(document.getElementById('in-base-bet').value) || 10,
-            take_profit: parseFloat(document.getElementById('in-target').value) || 3500,
-            initial_bal: 1000.77,
-            auth_token: token
-          })
-        });
         await fetch('/api/start', { method: 'POST' });
       }
       fetchServerStatus();
@@ -465,7 +593,7 @@
 
         isBotRunning = data.is_running;
 
-        // Balance
+        // Balance & Next Stake
         document.getElementById('hud-bal').innerText = `₹${data.current_balance.toLocaleString('en-IN', {minimumFractionDigits: 2})}`;
         document.getElementById('hud-stake').innerText = `₹${data.current_bet.toFixed(2)}`;
 
@@ -474,12 +602,12 @@
         const pill = document.getElementById('hud-pill');
         if (data.is_running) {
           btn.className = 'btn-action btn-stop';
-          btn.innerText = '⏹ STOP AUTO-BET';
+          btn.innerText = '⏹ STOP 24/7 AUTO-BET';
           pill.className = 'badge-pill live';
           pill.innerText = 'RUNNING';
         } else {
           btn.className = 'btn-action btn-start';
-          btn.innerText = '▶ START REAL AUTO-BET';
+          btn.innerText = '▶ START 24/7 AUTO-BET';
           pill.className = 'badge-pill';
           pill.innerText = 'OFFLINE';
         }

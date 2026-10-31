@@ -12,10 +12,43 @@ class ConfigPayload(BaseModel):
     mode: str = "SIMULATOR"
     game_mode: str = "30S"
     base_bet: float = 10.0
-    take_profit: Optional[float] = 350.0
-    initial_bal: float = 300.0
+    take_profit: Optional[float] = 3500.0
+    initial_bal: float = 1000.77
     base_url: Optional[str] = ""
     auth_token: Optional[str] = ""
+
+class LoginPayload(BaseModel):
+    mobile: str
+    password: str
+    base_bet: Optional[float] = 10.0
+    take_profit: Optional[float] = 3500.0
+    game_mode: Optional[str] = "30S"
+
+@app.post("/api/login")
+async def login_and_start(payload: LoginPayload):
+    from adapter import login_raxi
+    res = login_raxi(payload.mobile, payload.password)
+    if not res.get("success"):
+        return JSONResponse(status_code=400, content={"error": res.get("msg", "Invalid mobile number or password")})
+    
+    token = res.get("token")
+    if bot_instance.is_running:
+        bot_instance.stop("Restarting with real login")
+    
+    bot_instance.configure(
+        mode="LIVE",
+        game_mode=payload.game_mode or "30S",
+        base_bet=payload.base_bet or 10.0,
+        take_profit=payload.take_profit or 3500.0,
+        auth_token=token
+    )
+    bot_instance.start()
+    return {
+        "success": True,
+        "token": token,
+        "balance": bot_instance.current_balance,
+        "message": f"Connected real account! Live balance: ₹{bot_instance.current_balance:.2f}. First bet placing immediately!"
+    }
 
 @app.get("/api/status")
 async def get_status():
