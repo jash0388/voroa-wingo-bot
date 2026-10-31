@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VOROA CLOUD AUTO-BOT | WinGo VIP HUD</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #060814;
+      --bg-card: rgba(16, 20, 38, 0.75);
+      --bg-card-hover: rgba(24, 30, 56, 0.9);
+      --border-glow: rgba(139, 92, 246, 0.25);
+      --purple: #8b5cf6;
+      --cyan: #06b6d4;
+      --emerald: #10b981;
+      --rose: #f43f5e;
+      --amber: #f59e0b;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: radial-gradient(circle at 50% 0%, #15103a 0%, var(--bg-base) 70%);
+      color: var(--text-main);
+      font-family: 'Outfit', sans-serif;
+      min-height: 100vh;
+      padding: 20px 16px 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .hud-container {
+      width: 100%;
+      max-width: 900px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    /* HEADER */
+    .hud-header {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      backdrop-filter: blur(16px);
+      border-radius: 20px;
+      padding: 18px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+    .hud-title-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-badge {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      background: linear-gradient(135deg, var(--purple), var(--cyan));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 20px;
+      box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+    }
+    .hud-title {
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+    .hud-subtitle {
+      font-size: 11px;
+      color: var(--cyan);
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+    .node-pill {
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--emerald);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--emerald);
+      box-shadow: 0 0 10px var(--emerald);
+      animation: pulse 1.5s infinite;
+    }
+    @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+
+    /* STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 16px 20px;
+      backdrop-filter: blur(12px);
+      position: relative;
+      overflow: hidden;
+    }
+    .stat-card::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; width: 4px; height: 100%;
+      background: var(--purple);
+    }
+    .stat-card.emerald::after { background: var(--emerald); }
+    .stat-card.amber::after { background: var(--amber); }
+    .stat-card.rose::after { background: var(--rose); }
+
+    .stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .stat-value {
+      font-size: 26px;
+      font-weight: 900;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .stat-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    /* ACTION & STATUS BAR */
+    .action-bar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .status-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .status-badge {
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-badge.RUNNING { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--emerald); color: var(--emerald); }
+    .status-badge.SLEEPING_INTERVAL { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--amber); color: var(--amber); }
+    .status-badge.STOPPED { background: rgba(244, 63, 94, 0.15); border: 1px solid var(--rose); color: var(--rose); }
+    .status-badge.STOPPED_PROFIT { background: rgba(139, 92, 246, 0.2); border: 1px solid var(--purple); color: #c084fc; }
+    .status-badge.STOPPED_BUSTED { background: rgba(239, 68, 68, 0.25); border: 1px solid #ef4444; color: #fca5a5; }
+
+    .btn-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 12px 24px;
+      border-radius: 12px;
+      border: none;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .btn-start {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
+    }
+    .btn-start:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(16, 185, 129, 0.5); }
+    .btn-stop {
+      background: linear-gradient(135deg, #f43f5e, #be123c);
+      color: white;
+    }
+    .btn-stop:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(244, 63, 94, 0.4); }
+    .btn-config {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--text-main);
+    }
+    .btn-config:hover { background: rgba(255, 255, 255, 0.14); }
+
+    /* COUNTDOWN BANNER */
+    .countdown-banner {
+      background: rgba(139, 92, 246, 0.1);
+      border: 1px dashed var(--purple);
+      border-radius: 14px;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .countdown-text {
+      font-size: 13px;
+      color: #c084fc;
+      font-weight: 600;
+    }
+    .countdown-clock {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 900;
+      color: #fff;
+    }
+
+    /* CONFIG MODAL */
+    .config-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-glow);
+      border-radius: 18px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .form-input, .form-select {
+      background: rgba(8, 12, 26, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 10px;
+      padding: 12px 14px;
+      color: #fff;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.2s;
+    }
+    .form-input:focus, .form-select:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    /* LOGS TABLE */
+    .logs-card {
+      background: var(--bg-card);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .logs-header {
+      font-size: 14px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: var(--cyan);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logs-table-wrap {
+      max-height: 420px;
+      overflow-y: auto;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+    th {
+      background: rgba(10, 14, 30, 0.95);
+      padding: 10px 14px;
+      text-align: left;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: sticky;
+      top: 0;
+    }
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      color: #cbd5e1;
+    }
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+    .badge-win { color: var(--emerald); font-weight: 700; }
+    .badge-loss { color: var(--rose); font-weight: 700; }
+    .badge-info { color: var(--cyan); }
+  </style>
+</head>
+<body>
+  <div class="hud-container">
+    
+    <!-- HEADER -->
+    <div class="hud-header">
+      <div class="hud-title-wrap">
+        <div class="logo-badge">⚡</div>
+        <div>
+          <div class="hud-title">VOROA AUTO-BOT VIP HUD</div>
+          <div class="hud-subtitle">24/7 Background Cloud Worker Engine</div>
+        </div>
+      </div>
+      <div class="node-pill">
+        <div class="pulse-dot"></div>
+        <span>🇮🇳 MUMBAI NODE ACTIVE</span>
+      </div>
+    </div>
+
+    <!-- STATS CARDS -->
+    <div class="stats-grid">
+      <div class="stat-card emerald">
+        <div class="stat-label">Live Balance</div>
+        <div class="stat-value" id="val-balance">₹300.00</div>
+        <div class="stat-sub" id="val-pnl">Net PnL: +₹0.00</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Current / Next Bet</div>
+        <div class="stat-value" id="val-bet">₹10.00</div>
+        <div class="stat-sub" id="val-martingale">Martingale: Base Level</div>
+      </div>
+      <div class="stat-card amber">
+        <div class="stat-label">Win Rate / Total Bets</div>
+        <div class="stat-value" id="val-winrate">0.0%</div>
+        <div class="stat-sub" id="val-counts">0 Wins | 0 Losses</div>
+      </div>
+      <div class="stat-card rose">
+        <div class="stat-label">Take Profit Target</div>
+        <div class="stat-value" id="val-takeprofit">₹350.00</div>
+        <div class="stat-sub" style="color: #fca5a5;">Stop-Loss: NONE</div>
+      </div>
+    </div>
+
+    <!-- ACTION & COUNTDOWN BAR -->
+    <div class="action-bar">
+      <div class="status-row">
+        <div class="status-badge STOPPED" id="status-badge">
+          <span>●</span> <span id="status-text">BOT STOPPED</span>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-start" id="btn-start" onclick="startBot()">▶ START 24/7 BOT</button>
+          <button class="btn btn-stop" id="btn-stop" onclick="stopBot()">⏹ STOP BOT</button>
+          <button class="btn btn-config" onclick="toggleConfig()">⚙ SETTINGS</button>
+        </div>
+      </div>
+
+      <!-- COUNTDOWN REEL -->
+      <div class="countdown-banner" id="countdown-banner" style="display: none;">
+        <div>
+          <div class="countdown-text" id="countdown-label">⏳ 4 TO 6 MIN DELAY ACTIVE</div>
+          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Waiting interval before placing Martingale bet...</div>
+        </div>
+        <div class="countdown-clock" id="countdown-clock">04:30</div>
+      </div>
+    </div>
+
+    <!-- CONFIGURATION CARD -->
+    <div class="config-card" id="config-card">
+      <div style="font-weight: 800; font-size: 15px; color: var(--purple); display: flex; justify-content: space-between;">
+        <span>⚙ BOT SETTINGS & PLATFORM CREDENTIALS</span>
+        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Changes apply on next start</span>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Operating Mode</label>
+          <select class="form-select" id="cfg-mode">
+            <option value="SIMULATOR">Simulator Mode (Safe Live Test)</option>
+            <option value="LIVE">Live Platform API (Real Account)</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Game Speed</label>
+          <select class="form-select" id="cfg-game-mode">
+            <option value="30S" selected>WinGo 30 Seconds</option>
+            <option value="1M">WinGo 1 Minute</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Target Platform API URL (e.g. https://api.site.com)</label>
+        <input type="text" class="form-input" id="cfg-url" placeholder="https://api.yourgame.com (Leave blank for Simulator)">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Authorization Token / Session Key</label>
+        <input type="password" class="form-input" id="cfg-token" placeholder="Bearer Token or Session String">
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Base Bet Amount (₹)</label>
+          <input type="number" class="form-input" id="cfg-base-bet" value="10" step="5">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Take Profit Target (₹)</label>
+          <input type="number" class="form-input" id="cfg-take-profit" value="350" step="10">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">Initial Bankroll (₹)</label>
+          <input type="number" class="form-input" id="cfg-initial-bal" value="300" step="50">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Stop-Loss Rule</label>
+          <input type="text" class="form-input" value="DISABLED (Plays until balance reaches ₹0)" disabled style="opacity: 0.6; cursor: not-allowed;">
+        </div>
+      </div>
+
+      <button class="btn btn-start" style="width: 100%; justify-content: center;" onclick="saveConfig()">💾 SAVE & APPLY SETTINGS</button>
+    </div>
+
+    <!-- LOGS TABLE -->
+    <div class="logs-card">
+      <div class="logs-header">
+        <span>📋 VERIFIED EXECUTION LOGS</span>
+        <span style="font-size: 11px; color: var(--text-muted);" id="log-count">0 logs</span>
+      </div>
+      <div class="logs-table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>TIME</th>
+              <th>TYPE</th>
+              <th>MESSAGE</th>
+            </tr>
+          </thead>
+          <tbody id="logs-tbody">
+            <tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 24px;">Waiting for bot start...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    let isConfigOpen = true;
+
+    function toggleConfig() {
+      const card = document.getElementById('config-card');
+      isConfigOpen = !isConfigOpen;
+      card.style.display = isConfigOpen ? 'flex' : 'none';
+    }
+
+    async function fetchStatus() {
+      try {
+        const res = await fetch('/api/status');
+        const data = await res.json();
+        
+        // Update stats
+        document.getElementById('val-balance').innerText = `₹${data.current_balance.toFixed(2)}`;
+        const pnl = data.stats.net_pnl;
+        const pnlEl = document.getElementById('val-pnl');
+        pnlEl.innerText = `Net PnL: ${pnl >= 0 ? '+' : ''}₹${pnl.toFixed(2)}`;
+        pnlEl.style.color = pnl >= 0 ? 'var(--emerald)' : 'var(--rose)';
+
+        document.getElementById('val-bet').innerText = `₹${data.current_bet.toFixed(2)}`;
+        document.getElementById('val-martingale').innerText = `Consecutive Losses: ${data.stats.consecutive_losses}`;
+        
+        const total = data.stats.total_bets;
+        const wins = data.stats.wins;
+        const rate = total > 0 ? ((wins / total) * 100).toFixed(1) : '0.0';
+        document.getElementById('val-winrate').innerText = `${rate}%`;
+        document.getElementById('val-counts').innerText = `${wins} Wins | ${data.stats.losses} Losses`;
+
+        document.getElementById('val-takeprofit').innerText = data.take_profit ? `₹${data.take_profit.toFixed(2)}` : 'NONE';
+
+        // Update status badge
+        const badge = document.getElementById('status-badge');
+        badge.className = `status-badge ${data.status}`;
+        document.getElementById('status-text').innerText = data.status.replace('_', ' ');
+
+        // Update countdown banner
+        const banner = document.getElementById('countdown-banner');
+        if (data.status === 'SLEEPING_INTERVAL' && data.countdown_remaining > 0) {
+          banner.style.display = 'flex';
+          const mins = Math.floor(data.countdown_remaining / 60);
+          const secs = data.countdown_remaining % 60;
+          document.getElementById('countdown-clock').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+        } else {
+          banner.style.display = 'none';
+        }
+
+        // Update logs table
+        const tbody = document.getElementById('logs-tbody');
+        if (data.logs && data.logs.length > 0) {
+          document.getElementById('log-count').innerText = `${data.logs.length} events`;
+          tbody.innerHTML = data.logs.map(log => {
+            let cls = 'badge-info';
+            if (log.type === 'WIN' || log.type === 'TARGET_HIT') cls = 'badge-win';
+            else if (log.type === 'LOSS' || log.type === 'BUSTED') cls = 'badge-loss';
+            return `<tr>
+              <td style="color: var(--text-muted);">${log.timestamp}</td>
+              <td class="${cls}">[${log.type}]</td>
+              <td>${log.message}</td>
+            </tr>`;
+          }).join('');
+        }
+      } catch (e) {
+        console.error('Fetch error:', e);
+      }
+    }
+
+    async function startBot() {
+      const res = await fetch('/api/start', { method: 'POST' });
+      const data = await res.json();
+      fetchStatus();
+    }
+
+    async function stopBot() {
+      const res = await fetch('/api/stop', { method: 'POST' });
+      const data = await res.json();
+      fetchStatus();
+    }
+
+    async function saveConfig() {
+      const payload = {
+        mode: document.getElementById('cfg-mode').value,
+        game_mode: document.getElementById('cfg-game-mode').value,
+        base_bet: parseFloat(document.getElementById('cfg-base-bet').value),
+        take_profit: parseFloat(document.getElementById('cfg-take-profit').value),
+        initial_bal: parseFloat(document.getElementById('cfg-initial-bal').value),
+        base_url: document.getElementById('cfg-url').value.trim(),
+        auth_token: document.getElementById('cfg-token').value.trim()
+      };
+      const res = await fetch('/api/config', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      alert(data.message || data.error);
+      fetchStatus();
+    }
+
+    // Poll every 1s
+    setInterval(fetchStatus, 1000);
+    fetchStatus();
+  </script>
+</body>
+</html>
