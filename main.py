@@ -1,6 +1,7 @@
 import uvicorn
+import os
 from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse, JSONResponse
+from fastapi.responses import HTMLResponse, JSONResponse, PlainTextResponse
 from pydantic import BaseModel
 from typing import Optional
 from bot import bot_instance
@@ -8,8 +9,8 @@ from bot import bot_instance
 app = FastAPI(title="Voroa WinGo Auto-Bot")
 
 class ConfigPayload(BaseModel):
-    mode: str = "SIMULATOR" # "SIMULATOR" or "LIVE"
-    game_mode: str = "30S"   # "30S" or "1M"
+    mode: str = "SIMULATOR"
+    game_mode: str = "30S"
     base_bet: float = 10.0
     take_profit: Optional[float] = 350.0
     initial_bal: float = 300.0
@@ -60,10 +61,16 @@ async def stop_bot():
     bot_instance.stop("User clicked stop")
     return {"success": True, "message": "Bot stopped."}
 
+@app.get("/static_script.js", response_class=PlainTextResponse)
+async def serve_user_script():
+    with open("static_script.js", "r", encoding="utf-8") as f:
+        return f.read()
+
 @app.get("/", response_class=HTMLResponse)
 async def serve_dashboard():
     with open("dashboard.html", "r", encoding="utf-8") as f:
         return f.read()
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=False)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=False)

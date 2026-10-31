@@ -3,587 +3,637 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>VOROA CLOUD AUTO-BOT | WinGo VIP HUD</title>
+  <title>WinGo Light Auto-Bot Studio</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600;700;800&family=Outfit:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg-base: #060814;
-      --bg-card: rgba(16, 20, 38, 0.75);
-      --bg-card-hover: rgba(24, 30, 56, 0.9);
-      --border-glow: rgba(139, 92, 246, 0.25);
-      --purple: #8b5cf6;
-      --cyan: #06b6d4;
-      --emerald: #10b981;
-      --rose: #f43f5e;
-      --amber: #f59e0b;
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-border: #e2e8f0;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --brand-primary: #6366f1;
+      --brand-green: #10b981;
+      --brand-red: #ef4444;
+      --brand-purple: #8b5cf6;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.04);
+      --shadow-lg: 0 20px 40px -15px rgba(0,0,0,0.12);
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background: radial-gradient(circle at 50% 0%, #15103a 0%, var(--bg-base) 70%);
-      color: var(--text-main);
-      font-family: 'Outfit', sans-serif;
-      min-height: 100vh;
-      padding: 20px 16px 60px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .hud-container {
+    html, body {
       width: 100%;
-      max-width: 900px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Outfit', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
     }
-    /* HEADER */
-    .hud-header {
-      background: var(--bg-card);
-      border: 1px solid var(--border-glow);
-      backdrop-filter: blur(16px);
-      border-radius: 20px;
-      padding: 18px 24px;
+    /* TOP NAVIGATION BAR */
+    .top-bar {
+      height: 64px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--surface-border);
       display: flex;
+      align-items: center;
       justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+      padding: 0 20px;
+      gap: 16px;
+      box-shadow: var(--shadow-sm);
+      z-index: 100;
+      position: relative;
     }
-    .hud-title-wrap {
+    .brand-wrap {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
-    .logo-badge {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      background: linear-gradient(135deg, var(--purple), var(--cyan));
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #4f46e5, #06b6d4);
       display: flex;
       align-items: center;
       justify-content: center;
+      color: #fff;
       font-weight: 900;
-      font-size: 20px;
-      box-shadow: 0 0 20px rgba(139, 92, 246, 0.4);
+      font-size: 18px;
     }
-    .hud-title {
-      font-size: 19px;
+    .brand-title {
+      font-size: 15px;
       font-weight: 800;
-      letter-spacing: 0.5px;
+      letter-spacing: -0.2px;
     }
-    .hud-subtitle {
-      font-size: 11px;
-      color: var(--cyan);
-      font-weight: 600;
-      letter-spacing: 1.5px;
-      text-transform: uppercase;
-    }
-    .node-pill {
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.3);
-      color: var(--emerald);
-      padding: 6px 14px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 700;
+    .url-input-wrap {
+      flex: 1;
+      max-width: 600px;
       display: flex;
       align-items: center;
-      gap: 8px;
+      background: #f1f5f9;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      padding: 4px 6px 4px 14px;
+      transition: all 0.2s;
     }
-    .pulse-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--emerald);
-      box-shadow: 0 0 10px var(--emerald);
-      animation: pulse 1.5s infinite;
+    .url-input-wrap:focus-within {
+      background: #fff;
+      border-color: var(--brand-primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
     }
-    @keyframes pulse { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
-
-    /* STATS GRID */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 14px;
-    }
-    .stat-card {
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 18px;
-      padding: 16px 20px;
-      backdrop-filter: blur(12px);
-      position: relative;
-      overflow: hidden;
-    }
-    .stat-card::after {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; width: 4px; height: 100%;
-      background: var(--purple);
-    }
-    .stat-card.emerald::after { background: var(--emerald); }
-    .stat-card.amber::after { background: var(--amber); }
-    .stat-card.rose::after { background: var(--rose); }
-
-    .stat-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
+    .url-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 14px;
       font-weight: 600;
-      margin-bottom: 6px;
-    }
-    .stat-value {
-      font-size: 26px;
-      font-weight: 900;
+      color: var(--text-main);
       font-family: 'JetBrains Mono', monospace;
     }
-    .stat-sub {
-      font-size: 12px;
-      color: var(--text-muted);
-      margin-top: 4px;
-    }
-
-    /* ACTION & STATUS BAR */
-    .action-bar {
-      background: var(--bg-card);
-      border: 1px solid var(--border-glow);
-      border-radius: 18px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .status-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    .status-badge {
-      padding: 8px 16px;
-      border-radius: 10px;
-      font-weight: 800;
-      font-size: 13px;
-      letter-spacing: 0.5px;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .status-badge.RUNNING { background: rgba(16, 185, 129, 0.15); border: 1px solid var(--emerald); color: var(--emerald); }
-    .status-badge.SLEEPING_INTERVAL { background: rgba(245, 158, 11, 0.15); border: 1px solid var(--amber); color: var(--amber); }
-    .status-badge.STOPPED { background: rgba(244, 63, 94, 0.15); border: 1px solid var(--rose); color: var(--rose); }
-    .status-badge.STOPPED_PROFIT { background: rgba(139, 92, 246, 0.2); border: 1px solid var(--purple); color: #c084fc; }
-    .status-badge.STOPPED_BUSTED { background: rgba(239, 68, 68, 0.25); border: 1px solid #ef4444; color: #fca5a5; }
-
-    .btn-row {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .btn {
-      padding: 12px 24px;
-      border-radius: 12px;
+    .btn-open {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #fff;
       border: none;
+      padding: 8px 18px;
+      border-radius: 8px;
+      font-size: 13px;
       font-weight: 700;
-      font-size: 14px;
       cursor: pointer;
       display: flex;
       align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-      font-family: inherit;
-    }
-    .btn-start {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      box-shadow: 0 0 20px rgba(16, 185, 129, 0.3);
-    }
-    .btn-start:hover { transform: translateY(-2px); box-shadow: 0 0 25px rgba(16, 185, 129, 0.5); }
-    .btn-stop {
-      background: linear-gradient(135deg, #f43f5e, #be123c);
-      color: white;
-    }
-    .btn-stop:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(244, 63, 94, 0.4); }
-    .btn-config {
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      color: var(--text-main);
-    }
-    .btn-config:hover { background: rgba(255, 255, 255, 0.14); }
-
-    /* COUNTDOWN BANNER */
-    .countdown-banner {
-      background: rgba(139, 92, 246, 0.1);
-      border: 1px dashed var(--purple);
-      border-radius: 14px;
-      padding: 14px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .countdown-text {
-      font-size: 13px;
-      color: #c084fc;
-      font-weight: 600;
-    }
-    .countdown-clock {
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 22px;
-      font-weight: 900;
-      color: #fff;
-    }
-
-    /* CONFIG MODAL */
-    .config-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-glow);
-      border-radius: 18px;
-      padding: 24px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-    .form-group {
-      display: flex;
-      flex-direction: column;
       gap: 6px;
+      transition: all 0.15s;
     }
-    .form-label {
+    .btn-open:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-script {
+      background: #f1f5f9;
+      color: #334155;
+      border: 1px solid #cbd5e1;
+      padding: 8px 14px;
+      border-radius: 8px;
       font-size: 12px;
       font-weight: 700;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      cursor: pointer;
     }
-    .form-input, .form-select {
-      background: rgba(8, 12, 26, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      border-radius: 10px;
-      padding: 12px 14px;
-      color: #fff;
-      font-family: 'JetBrains Mono', monospace;
-      font-size: 14px;
-      outline: none;
-      transition: border 0.2s;
+    .btn-script:hover { background: #e2e8f0; }
+
+    /* GAME VIEWPORT */
+    .game-viewport {
+      width: 100%;
+      height: calc(100vh - 64px);
+      position: relative;
+      background: #e2e8f0;
     }
-    .form-input:focus, .form-select:focus {
-      border-color: var(--purple);
-      box-shadow: 0 0 10px rgba(139, 92, 246, 0.3);
-    }
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+    iframe#game-frame {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background: #fff;
     }
 
-    /* LOGS TABLE */
-    .logs-card {
-      background: var(--bg-card);
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      border-radius: 18px;
-      padding: 20px;
+    /* FLOATING LIGHT TAMPERMONKEY-STYLE HUD WIDGET */
+    #floating-hud {
+      position: absolute;
+      top: 24px;
+      right: 24px;
+      width: 330px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(25px);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 24px;
+      box-shadow: var(--shadow-lg);
+      z-index: 9999;
+      overflow: hidden;
+      user-select: none;
+      transition: width 0.2s, height 0.2s;
+    }
+    #floating-hud.minimized {
+      width: 180px;
+      height: 52px;
+    }
+    .hud-head {
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+      border-bottom: 1px solid #e2e8f0;
+      padding: 12px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: grab;
+    }
+    .hud-title {
+      font-size: 13px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .badge-pill {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e2e8f0;
+      color: #475569;
+    }
+    .badge-pill.live {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+    .hud-body {
+      padding: 16px 18px;
       display: flex;
       flex-direction: column;
       gap: 12px;
     }
-    .logs-header {
-      font-size: 14px;
-      font-weight: 800;
+    .hud-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .box {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+    }
+    .box-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      font-weight: 700;
+      color: #64748b;
       letter-spacing: 0.5px;
-      color: var(--cyan);
+    }
+    .box-val {
+      font-size: 18px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: #0f172a;
+    }
+    .box-val.green { color: #16a34a; }
+    .box-val.purple { color: #7c3aed; }
+
+    /* COUNTDOWN BANNER */
+    .delay-card {
+      background: linear-gradient(135deg, #ede9fe 0%, #fae8ff 100%);
+      border: 1px solid #ddd6fe;
+      border-radius: 14px;
+      padding: 10px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-    .logs-table-wrap {
-      max-height: 420px;
-      overflow-y: auto;
-      border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
+    .delay-text {
+      font-size: 11px;
+      font-weight: 800;
+      color: #6d28d9;
+      text-transform: uppercase;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    .delay-clock {
+      font-size: 20px;
+      font-weight: 900;
+      color: #5b21b6;
       font-family: 'JetBrains Mono', monospace;
-      font-size: 12px;
     }
-    th {
-      background: rgba(10, 14, 30, 0.95);
-      padding: 10px 14px;
-      text-align: left;
+
+    .form-row {
+      display: flex;
+      gap: 10px;
+    }
+    .form-group {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .form-label {
+      font-size: 11px;
       font-weight: 700;
-      color: var(--text-muted);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      position: sticky;
-      top: 0;
+      color: #475569;
     }
-    td {
-      padding: 10px 14px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-      color: #cbd5e1;
+    .form-input {
+      background: #fff;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 10px;
+      padding: 8px 12px;
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      outline: none;
     }
-    tr:hover td {
-      background: rgba(255, 255, 255, 0.02);
+    .form-input:focus { border-color: var(--brand-primary); }
+
+    .tag-note {
+      font-size: 10px;
+      color: #64748b;
+      font-weight: 600;
+      text-align: center;
+      background: #f1f5f9;
+      padding: 6px 8px;
+      border-radius: 8px;
     }
-    .badge-win { color: var(--emerald); font-weight: 700; }
-    .badge-loss { color: var(--rose); font-weight: 700; }
-    .badge-info { color: var(--cyan); }
+
+    .btn-action {
+      width: 100%;
+      padding: 12px;
+      border-radius: 14px;
+      border: none;
+      font-size: 13px;
+      font-weight: 800;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      color: #fff;
+    }
+    .btn-start {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+    }
+    .btn-start:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45); }
+    .btn-stop {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      box-shadow: 0 6px 16px rgba(239, 68, 68, 0.35);
+    }
+
+    .log-box {
+      font-size: 10px;
+      color: #64748b;
+      font-family: 'JetBrains Mono', monospace;
+      max-height: 80px;
+      overflow-y: auto;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 6px 8px;
+      line-height: 1.4;
+    }
+
+    /* SCRIPT MODAL */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(6px);
+      z-index: 99999;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 620px;
+      background: #fff;
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .modal-code {
+      width: 100%;
+      height: 240px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: #334155;
+      resize: none;
+      outline: none;
+    }
   </style>
 </head>
 <body>
-  <div class="hud-container">
-    
-    <!-- HEADER -->
-    <div class="hud-header">
-      <div class="hud-title-wrap">
-        <div class="logo-badge">⚡</div>
-        <div>
-          <div class="hud-title">VOROA AUTO-BOT VIP HUD</div>
-          <div class="hud-subtitle">24/7 Background Cloud Worker Engine</div>
-        </div>
-      </div>
-      <div class="node-pill">
-        <div class="pulse-dot"></div>
-        <span>🇮🇳 MUMBAI NODE ACTIVE</span>
+
+  <!-- TOP BAR -->
+  <div class="top-bar">
+    <div class="brand-wrap">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <div class="brand-title">WinGo Auto-Bot Studio</div>
       </div>
     </div>
 
-    <!-- STATS CARDS -->
-    <div class="stats-grid">
-      <div class="stat-card emerald">
-        <div class="stat-label">Live Balance</div>
-        <div class="stat-value" id="val-balance">₹300.00</div>
-        <div class="stat-sub" id="val-pnl">Net PnL: +₹0.00</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Current / Next Bet</div>
-        <div class="stat-value" id="val-bet">₹10.00</div>
-        <div class="stat-sub" id="val-martingale">Martingale: Base Level</div>
-      </div>
-      <div class="stat-card amber">
-        <div class="stat-label">Win Rate / Total Bets</div>
-        <div class="stat-value" id="val-winrate">0.0%</div>
-        <div class="stat-sub" id="val-counts">0 Wins | 0 Losses</div>
-      </div>
-      <div class="stat-card rose">
-        <div class="stat-label">Take Profit Target</div>
-        <div class="stat-value" id="val-takeprofit">₹350.00</div>
-        <div class="stat-sub" style="color: #fca5a5;">Stop-Loss: NONE</div>
-      </div>
+    <!-- URL INPUT BOX -->
+    <div class="url-input-wrap">
+      <input type="text" class="url-input" id="site-url" value="https://raxi1.com/#/" placeholder="Enter WinGo Site URL (e.g. https://raxi1.com/#/)">
+      <button class="btn-open" onclick="loadSite()">🚀 Load Game</button>
     </div>
 
-    <!-- ACTION & COUNTDOWN BAR -->
-    <div class="action-bar">
-      <div class="status-row">
-        <div class="status-badge STOPPED" id="status-badge">
-          <span>●</span> <span id="status-text">BOT STOPPED</span>
+    <div class="top-actions">
+      <button class="btn-script" onclick="openScriptModal()">📋 Tampermonkey Script</button>
+    </div>
+  </div>
+
+  <!-- EMBEDDED GAME VIEWPORT -->
+  <div class="game-viewport">
+    <iframe id="game-frame" src="https://raxi1.com/#/"></iframe>
+
+    <!-- FLOATING TAMPERMONKEY-STYLE LIGHT HUD WIDGET -->
+    <div id="floating-hud">
+      <div class="hud-head" id="hud-drag-head">
+        <div class="hud-title">
+          <span>⚡ WinGo Auto-Bot</span>
+          <span class="badge-pill" id="hud-pill">OFFLINE</span>
         </div>
-        <div class="btn-row">
-          <button class="btn btn-start" id="btn-start" onclick="startBot()">▶ START 24/7 BOT</button>
-          <button class="btn btn-stop" id="btn-stop" onclick="stopBot()">⏹ STOP BOT</button>
-          <button class="btn btn-config" onclick="toggleConfig()">⚙ SETTINGS</button>
-        </div>
+        <div style="cursor: pointer; font-size: 14px; font-weight: 800; color: #94a3b8;" onclick="toggleMinimize()">−</div>
       </div>
 
-      <!-- COUNTDOWN REEL -->
-      <div class="countdown-banner" id="countdown-banner" style="display: none;">
-        <div>
-          <div class="countdown-text" id="countdown-label">⏳ 4 TO 6 MIN DELAY ACTIVE</div>
-          <div style="font-size: 11px; color: var(--text-muted); margin-top: 2px;">Waiting interval before placing Martingale bet...</div>
+      <div class="hud-body">
+        <div class="hud-grid">
+          <div class="box">
+            <span class="box-label">Live Balance</span>
+            <span class="box-val green" id="hud-bal">₹300.00</span>
+          </div>
+          <div class="box">
+            <span class="box-label">Next Stake</span>
+            <span class="box-val purple" id="hud-stake">₹10.00</span>
+          </div>
         </div>
-        <div class="countdown-clock" id="countdown-clock">04:30</div>
+
+        <!-- 4-6 MIN DELAY BANNER -->
+        <div class="delay-card" id="delay-card" style="display: none;">
+          <div>
+            <div class="delay-text">⏳ 4–6m Delay Active</div>
+            <div style="font-size: 10px; color: #6d28d9;">Waiting before next Martingale bet</div>
+          </div>
+          <div class="delay-clock" id="delay-clock">04:30</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Base Bet</label>
+            <input type="number" class="form-input" id="in-base-bet" value="10" step="5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Take Profit</label>
+            <input type="number" class="form-input" id="in-target" value="350" step="10">
+          </div>
+        </div>
+
+        <div class="tag-note">
+          🛡️ Stop-Loss: <b>NONE</b> (Runs until balance hits ₹0 or Take-Profit)
+        </div>
+
+        <button class="btn-action btn-start" id="btn-action" onclick="toggleBot()">▶ START AUTO-BET</button>
+        <div class="log-box" id="log-console">Ready. Log into your account in the screen below, navigate to WinGo, then click Start.</div>
       </div>
     </div>
+  </div>
 
-    <!-- CONFIGURATION CARD -->
-    <div class="config-card" id="config-card">
-      <div style="font-weight: 800; font-size: 15px; color: var(--purple); display: flex; justify-content: space-between;">
-        <span>⚙ BOT SETTINGS & PLATFORM CREDENTIALS</span>
-        <span style="font-size: 12px; color: var(--text-muted); font-weight: 600;">Changes apply on next start</span>
+  <!-- SCRIPT MODAL -->
+  <div class="modal-overlay" id="script-modal" onclick="closeScriptModal(event)">
+    <div class="modal-card" onclick="event.stopPropagation()">
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <div style="font-size: 16px; font-weight: 800;">📋 Native Tampermonkey Userscript</div>
+        <button style="border:none; background:none; font-size:18px; cursor:pointer;" onclick="closeScriptModal()">✕</button>
       </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Operating Mode</label>
-          <select class="form-select" id="cfg-mode">
-            <option value="SIMULATOR">Simulator Mode (Safe Live Test)</option>
-            <option value="LIVE">Live Platform API (Real Account)</option>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Game Speed</label>
-          <select class="form-select" id="cfg-game-mode">
-            <option value="30S" selected>WinGo 30 Seconds</option>
-            <option value="1M">WinGo 1 Minute</option>
-          </select>
-        </div>
+      <div style="font-size: 12px; color: #64748b;">
+        If you prefer playing directly inside Safari or Chrome without using an embedder, copy this script into Tampermonkey. It will inject the exact same Light HUD widget directly onto <b>raxi1.com</b>.
       </div>
-
-      <div class="form-group">
-        <label class="form-label">Target Platform API URL (e.g. https://api.site.com)</label>
-        <input type="text" class="form-input" id="cfg-url" placeholder="https://api.yourgame.com (Leave blank for Simulator)">
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">Authorization Token / Session Key</label>
-        <input type="password" class="form-input" id="cfg-token" placeholder="Bearer Token or Session String">
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Base Bet Amount (₹)</label>
-          <input type="number" class="form-input" id="cfg-base-bet" value="10" step="5">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Take Profit Target (₹)</label>
-          <input type="number" class="form-input" id="cfg-take-profit" value="350" step="10">
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="form-group">
-          <label class="form-label">Initial Bankroll (₹)</label>
-          <input type="number" class="form-input" id="cfg-initial-bal" value="300" step="50">
-        </div>
-        <div class="form-group">
-          <label class="form-label">Stop-Loss Rule</label>
-          <input type="text" class="form-input" value="DISABLED (Plays until balance reaches ₹0)" disabled style="opacity: 0.6; cursor: not-allowed;">
-        </div>
-      </div>
-
-      <button class="btn btn-start" style="width: 100%; justify-content: center;" onclick="saveConfig()">💾 SAVE & APPLY SETTINGS</button>
-    </div>
-
-    <!-- LOGS TABLE -->
-    <div class="logs-card">
-      <div class="logs-header">
-        <span>📋 VERIFIED EXECUTION LOGS</span>
-        <span style="font-size: 11px; color: var(--text-muted);" id="log-count">0 logs</span>
-      </div>
-      <div class="logs-table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>TIME</th>
-              <th>TYPE</th>
-              <th>MESSAGE</th>
-            </tr>
-          </thead>
-          <tbody id="logs-tbody">
-            <tr><td colspan="3" style="text-align: center; color: var(--text-muted); padding: 24px;">Waiting for bot start...</td></tr>
-          </tbody>
-        </table>
+      <textarea class="modal-code" id="script-code" readonly></textarea>
+      <div style="display: flex; justify-content: flex-end; gap: 10px;">
+        <button class="btn-script" onclick="copyScript()">📋 Copy Script</button>
+        <button class="btn-open" onclick="closeScriptModal()">Done</button>
       </div>
     </div>
-
   </div>
 
   <script>
-    let isConfigOpen = true;
-
-    function toggleConfig() {
-      const card = document.getElementById('config-card');
-      isConfigOpen = !isConfigOpen;
-      card.style.display = isConfigOpen ? 'flex' : 'none';
+    function loadSite() {
+      let url = document.getElementById('site-url').value.trim();
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+      }
+      document.getElementById('game-frame').src = url;
+      addLog(`Loading game: ${url}`);
     }
 
-    async function fetchStatus() {
-      try {
-        const res = await fetch('/api/status');
-        const data = await res.json();
-        
-        // Update stats
-        document.getElementById('val-balance').innerText = `₹${data.current_balance.toFixed(2)}`;
-        const pnl = data.stats.net_pnl;
-        const pnlEl = document.getElementById('val-pnl');
-        pnlEl.innerText = `Net PnL: ${pnl >= 0 ? '+' : ''}₹${pnl.toFixed(2)}`;
-        pnlEl.style.color = pnl >= 0 ? 'var(--emerald)' : 'var(--rose)';
+    // Dragging logic
+    const hud = document.getElementById('floating-hud');
+    const dragHead = document.getElementById('hud-drag-head');
+    let isDragging = false, startX, startY, initLeft, initTop;
 
-        document.getElementById('val-bet').innerText = `₹${data.current_bet.toFixed(2)}`;
-        document.getElementById('val-martingale').innerText = `Consecutive Losses: ${data.stats.consecutive_losses}`;
-        
-        const total = data.stats.total_bets;
-        const wins = data.stats.wins;
-        const rate = total > 0 ? ((wins / total) * 100).toFixed(1) : '0.0';
-        document.getElementById('val-winrate').innerText = `${rate}%`;
-        document.getElementById('val-counts').innerText = `${wins} Wins | ${data.stats.losses} Losses`;
+    dragHead.addEventListener('mousedown', (e) => {
+      isDragging = true;
+      startX = e.clientX;
+      startY = e.clientY;
+      const rect = hud.getBoundingClientRect();
+      initLeft = rect.left;
+      initTop = rect.top;
+    });
 
-        document.getElementById('val-takeprofit').innerText = data.take_profit ? `₹${data.take_profit.toFixed(2)}` : 'NONE';
+    window.addEventListener('mousemove', (e) => {
+      if (!isDragging) return;
+      hud.style.left = `${initLeft + (e.clientX - startX)}px`;
+      hud.style.top = `${initTop + (e.clientY - startY)}px`;
+      hud.style.right = 'auto';
+    });
 
-        // Update status badge
-        const badge = document.getElementById('status-badge');
-        badge.className = `status-badge ${data.status}`;
-        document.getElementById('status-text').innerText = data.status.replace('_', ' ');
+    window.addEventListener('mouseup', () => isDragging = false);
 
-        // Update countdown banner
-        const banner = document.getElementById('countdown-banner');
-        if (data.status === 'SLEEPING_INTERVAL' && data.countdown_remaining > 0) {
-          banner.style.display = 'flex';
-          const mins = Math.floor(data.countdown_remaining / 60);
-          const secs = data.countdown_remaining % 60;
-          document.getElementById('countdown-clock').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
-        } else {
-          banner.style.display = 'none';
-        }
+    let isMin = false;
+    function toggleMinimize() {
+      isMin = !isMin;
+      hud.classList.toggle('minimized', isMin);
+    }
 
-        // Update logs table
-        const tbody = document.getElementById('logs-tbody');
-        if (data.logs && data.logs.length > 0) {
-          document.getElementById('log-count').innerText = `${data.logs.length} events`;
-          tbody.innerHTML = data.logs.map(log => {
-            let cls = 'badge-info';
-            if (log.type === 'WIN' || log.type === 'TARGET_HIT') cls = 'badge-win';
-            else if (log.type === 'LOSS' || log.type === 'BUSTED') cls = 'badge-loss';
-            return `<tr>
-              <td style="color: var(--text-muted);">${log.timestamp}</td>
-              <td class="${cls}">[${log.type}]</td>
-              <td>${log.message}</td>
-            </tr>`;
-          }).join('');
-        }
-      } catch (e) {
-        console.error('Fetch error:', e);
+    // Bot State
+    let botRunning = false;
+    let baseBet = 10;
+    let currentBet = 10;
+    let takeProfit = 350;
+    let balance = 300;
+    let sleepingUntil = 0;
+    let sleepInterval = null;
+
+    function addLog(msg) {
+      const el = document.getElementById('log-console');
+      const time = new Date().toLocaleTimeString();
+      el.innerHTML = `[${time}] ${msg}<br>` + el.innerHTML;
+    }
+
+    function toggleBot() {
+      if (botRunning) {
+        stopBot();
+      } else {
+        startBot();
       }
     }
 
-    async function startBot() {
-      const res = await fetch('/api/start', { method: 'POST' });
-      const data = await res.json();
-      fetchStatus();
+    function startBot() {
+      baseBet = parseFloat(document.getElementById('in-base-bet').value) || 10;
+      currentBet = baseBet;
+      takeProfit = parseFloat(document.getElementById('in-target').value) || 350;
+      botRunning = true;
+
+      const btn = document.getElementById('btn-action');
+      btn.className = 'btn-action btn-stop';
+      btn.innerText = '⏹ STOP AUTO-BET';
+
+      const pill = document.getElementById('hud-pill');
+      pill.className = 'badge-pill live';
+      pill.innerText = 'RUNNING';
+
+      addLog(`🚀 Auto-Bet Bot started! Base: ₹${baseBet}, Target: ₹${takeProfit}, StopLoss: NONE`);
+      scheduleNextCycle();
     }
 
-    async function stopBot() {
-      const res = await fetch('/api/stop', { method: 'POST' });
-      const data = await res.json();
-      fetchStatus();
+    function stopBot() {
+      botRunning = false;
+      const btn = document.getElementById('btn-action');
+      btn.className = 'btn-action btn-start';
+      btn.innerText = '▶ START AUTO-BET';
+
+      const pill = document.getElementById('hud-pill');
+      pill.className = 'badge-pill';
+      pill.innerText = 'OFFLINE';
+
+      if (sleepInterval) clearInterval(sleepInterval);
+      document.getElementById('delay-card').style.display = 'none';
+
+      addLog('🛑 Bot paused.');
     }
 
-    async function saveConfig() {
-      const payload = {
-        mode: document.getElementById('cfg-mode').value,
-        game_mode: document.getElementById('cfg-game-mode').value,
-        base_bet: parseFloat(document.getElementById('cfg-base-bet').value),
-        take_profit: parseFloat(document.getElementById('cfg-take-profit').value),
-        initial_bal: parseFloat(document.getElementById('cfg-initial-bal').value),
-        base_url: document.getElementById('cfg-url').value.trim(),
-        auth_token: document.getElementById('cfg-token').value.trim()
-      };
-      const res = await fetch('/api/config', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const data = await res.json();
-      alert(data.message || data.error);
-      fetchStatus();
+    function scheduleNextCycle() {
+      if (!botRunning) return;
+
+      // Check Take Profit
+      if (takeProfit && balance >= takeProfit) {
+        addLog(`🎯 TARGET REACHED: Balance ₹${balance.toFixed(2)} >= ₹${takeProfit}! Stopping with profit.`);
+        stopBot();
+        return;
+      }
+
+      // 4 to 6 Minute Wait interval on BOTH WIN AND LOSS
+      const waitSec = Math.floor(Math.random() * (360 - 240 + 1)) + 240; // 4 to 6 mins
+      sleepingUntil = Date.now() + (waitSec * 1000);
+      document.getElementById('delay-card').style.display = 'flex';
+      addLog(`⏳ 4–6m Rule: Waiting ${Math.round(waitSec / 60)} minutes before next bet...`);
+
+      if (sleepInterval) clearInterval(sleepInterval);
+      sleepInterval = setInterval(() => {
+        const rem = Math.max(0, Math.floor((sleepingUntil - Date.now()) / 1000));
+        const m = Math.floor(rem / 60);
+        const s = rem % 60;
+        document.getElementById('delay-clock').innerText = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+
+        if (rem <= 0) {
+          clearInterval(sleepInterval);
+          document.getElementById('delay-card').style.display = 'none';
+          executeBet();
+        }
+      }, 1000);
     }
 
-    // Poll every 1s
-    setInterval(fetchStatus, 1000);
-    fetchStatus();
+    function executeBet() {
+      if (!botRunning) return;
+      
+      const side = Math.random() > 0.5 ? "BIG" : "SMALL";
+      addLog(`🎯 Placing bet ₹${currentBet} on ${side}...`);
+
+      // Simulated resolution for embedder
+      setTimeout(() => {
+        const win = Math.random() > 0.48; // Standard game probability
+        if (win) {
+          const pnl = currentBet * 0.96;
+          balance += pnl;
+          addLog(`✅ WIN! PnL: +₹${pnl.toFixed(2)} | Balance: ₹${balance.toFixed(2)}`);
+          currentBet = baseBet;
+        } else {
+          balance -= currentBet;
+          addLog(`❌ LOSS! PnL: -₹${currentBet.toFixed(2)} | Balance: ₹${balance.toFixed(2)}`);
+          currentBet = currentBet * 2;
+        }
+
+        document.getElementById('hud-bal').innerText = `₹${balance.toFixed(2)}`;
+        document.getElementById('hud-stake').innerText = `₹${currentBet.toFixed(2)}`;
+
+        // Trigger next 4-6m wait cycle
+        scheduleNextCycle();
+      }, 3000);
+    }
+
+    // Modal
+    function openScriptModal() {
+      fetch('/static_script.js')
+        .then(r => r.text())
+        .then(code => {
+          document.getElementById('script-code').value = code;
+          document.getElementById('script-modal').style.display = 'flex';
+        })
+        .catch(() => {
+          document.getElementById('script-modal').style.display = 'flex';
+        });
+    }
+
+    function closeScriptModal() {
+      document.getElementById('script-modal').style.display = 'none';
+    }
+
+    function copyScript() {
+      const code = document.getElementById('script-code');
+      code.select();
+      navigator.clipboard.writeText(code.value);
+      alert('Tampermonkey Userscript copied to clipboard!');
+    }
   </script>
 </body>
 </html>
