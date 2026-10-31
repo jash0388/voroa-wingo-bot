@@ -12,11 +12,13 @@ Xvfb :0 -screen 0 "${RESOLUTION}x24" -ac +extension GLX +render -noreset &
 export DISPLAY=:0
 
 # Wait for X server to initialize
-until xdpyinfo -display :0 >/dev/null 2>&1; do
-    echo "Waiting for X display :0..."
+for i in $(seq 1 30); do
+    if xdpyinfo -display :0 >/dev/null 2>&1; then
+        echo "✅ Xvfb display :0 is ready!"
+        break
+    fi
     sleep 0.5
 done
-echo "✅ Xvfb display is active!"
 
 # 2. Start Openbox Window Manager
 echo "Starting Openbox..."
@@ -24,7 +26,7 @@ openbox &
 
 # 3. Start x11vnc server
 echo "Starting x11vnc on port 5900..."
-x11vnc -display :0 -forever -shared -nopw -rfbport 5900 -listen 127.0.0.1 -bg
+x11vnc -display :0 -forever -shared -nopw -rfbport 5900 -listen 127.0.0.1 -noxdamage -bg
 
 # 4. Configure noVNC index.html to auto-connect instantly
 mkdir -p /usr/share/novnc
@@ -49,23 +51,29 @@ EOF
 echo "Starting websockify on port ${PORT}..."
 websockify --web /usr/share/novnc ${PORT} 127.0.0.1:5900 &
 
-# 6. Launch Chromium with tabs: Tampermonkey Web Store + Raxi1 Game
-echo "Launching Chromium browser..."
+# 6. Launch Chromium with auto-restart loop
 mkdir -p /data/chrome-profile
+(
+    while true; do
+        echo "Launching Chromium browser..."
+        chromium \
+            --no-sandbox \
+            --disable-dev-shm-usage \
+            --disable-gpu \
+            --user-data-dir=/data/chrome-profile \
+            --window-size=1280,800 \
+            --window-position=0,0 \
+            --start-maximized \
+            --no-first-run \
+            --no-default-browser-check \
+            --password-store=basic \
+            "https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkminghmkfjojehanbpfageekm" \
+            "https://raxi1.com/#/" || true
+        echo "Chromium exited. Relaunching in 2 seconds..."
+        sleep 2
+    done
+) &
 
-chromium \
-    --no-sandbox \
-    --disable-dev-shm-usage \
-    --disable-gpu \
-    --user-data-dir=/data/chrome-profile \
-    --window-size=1280,800 \
-    --window-position=0,0 \
-    --start-maximized \
-    --no-first-run \
-    --no-default-browser-check \
-    --password-store=basic \
-    "https://chromewebstore.google.com/detail/tampermonkey/dhdgffkkminghmkfjojehanbpfageekm" \
-    "https://raxi1.com/#/" &
-
-# Keep container alive
-wait -n
+# Keep container running 24/7
+echo "✅ Cloud Chrome running 24/7 on port ${PORT}!"
+exec tail -f /dev/null

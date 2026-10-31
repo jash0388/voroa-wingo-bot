@@ -5,14 +5,15 @@ ENV PORT=8000
 ENV DISPLAY=:0
 ENV RESOLUTION=1280x800
 
-# Install Chromium, Xvfb, x11vnc, openbox, noVNC, websockify, and required fonts
+# Install Chromium, Xvfb, x11vnc, openbox, noVNC, python3-websockify, and fonts
 RUN apt-get update && apt-get install -y --no-install-recommends \
     chromium \
     xvfb \
     x11vnc \
     openbox \
     novnc \
-    websockify \
+    python3-websockify \
+    python3-numpy \
     x11-utils \
     ca-certificates \
     curl \
